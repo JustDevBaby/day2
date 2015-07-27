@@ -16,22 +16,14 @@
   <script src="dateApp.js"></script>
 </head>
 
-<body ng-controller="MainCtrl">
-<input id="dateField" datepicker ng-model="$parent.currentDate" select="updateMyText(date)">
-<br/>
-{{myText}} - {{currentDate}}
-<hr/>
-<input type="text" ng-model="timeOfDay" time-picker />
+<body >
 
-<hr/>
+<div ng-controller="MainController">
+  <date-picker></date-picker>
 
-<h2>Slider</h2>
-<div class="container" >
-  <div ng-model="$parent.minMax" data-rnc-slider-range></div>
-  <hr/>
-  <input type="text" ng-model="start"/>
-  <input type="text" ng-model="stop"/>
-  <label for="bob">Current Value:</label><input id="bob" ng-model="current"/>
+
+  <div>{{message}}</div>
+  <div>{{select}}</div>
 </div>
 
 </body>

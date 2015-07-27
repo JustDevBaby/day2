@@ -1,108 +1,49 @@
 (function () {
-    "use strict";
+  "use strict";
 
-    angular.module("Contacts").
-        service('ContactService', ['$localStorage', function ($localStorage) {
-            var savedStuff = $localStorage.$default({
-                contacts: [
-                    {
-                        firstName: 'Anthony',
-                        lastName: 'Stark',
-                        eMail: 'ironman@gmail.com'
-                    },
-                    {
-                        firstName: 'Thor',
-                        lastName: 'Odinson',
-                        eMail: "hammer@gmail.com"
-                    },
-                    {
-                        firstName: 'Janet',
-                        lastName: 'van Dyne',
-                        eMail: "jd@gmail.com"
-                    },
-                    {
-                        firstName: 'Robert',
-                        lastName: 'Bruce',
-                        eMail: "hulk@gmail.com"
-                    },
-                    {
-                        firstName: 'Steven',
-                        lastName: 'Rogers',
-                        eMail: "thecaptain@hotmail.com"
-                    },
-                    {
-                        firstName: 'Clinton',
-                        lastName: 'Barton',
-                        eMail: "hawkeye@hotmail.com"
-                    },
-                    {
-                        firstName: 'Pietro',
-                        lastName: 'Maximoff',
-                        eMail: "quicksilver@hotmail.com"
-                    },
-                    {
-                        firstName: 'Wanda',
-                        lastName: 'Maximoff',
-                        eMail: "scarlet@witch.com"
-                    },
-                    {
-                        firstName: 'Natalia',
-                        lastName: 'Romanova',
-                        eMail: "blackwidow@gmail.com"
-                    },
-                    {
-                        firstName: 'Samuel',
-                        lastName: 'Wilson',
-                        eMail: "falcon@hotmail.com"
-                    },
-                    {
-                        firstName: 'James',
-                        lastName: 'Rhodes',
-                        eMail: "ironpatriot@gmail.com"
-                    },
-                    {
-                        firstName: 'Nick',
-                        lastName: 'Fury',
-                        eMail: "theboss@gmail.com"
-                    }
-                ]
-            }),
-            contacts = savedStuff.contacts;
+  angular.module("Contacts").
+    service('ContactService', function ($firebaseArray, FIREBASE_URL) {
+      var fireRef = new Firebase(FIREBASE_URL);
+      var contacts = $firebaseArray(fireRef);
+      return {
+        getContacts: getContacts,
+        getContact: getContact,
+        deleteContact: deleteContact,
+        addContact: addContact,
+        updateContact: updateContact
+      };
 
-            return {
-                getContacts: getContacts,
-                getContact: getContact,
-                deleteContact: deleteContact,
-                addContact: addContact,
-                updateContact: updateContact
-            };
+      // most of the documentation you will need is at:
+      // https://www.firebase.com/docs/web/libraries/angular/api.html#angularfire-firebasearray
 
-            // returns all of the contacts
-            function getContacts() {
-                return contacts;
-            }
+      // returns all of the contacts
+      function getContacts() {
+        return contacts.$loaded();
+      }
 
-            // returns a single contact
-            function getContact(id) {
-                return contacts[id];
-            }
+      // returns a single contact (TODO: think of a better way)
+      function getContact(id) {
+        return contacts.$loaded();
+      }
 
-            // deletes a single contact
-            function deleteContact(id) {
-                contacts.splice(id, 1);
-                $localStorage.contacts = contacts;
-            }
+      // deletes a single contact
+      function deleteContact(id) {
+        var contact = contacts[id];
 
-            // adds a new contact
-            function addContact(contact) {
-                contacts.push(contact);
-                $localStorage.contacts = contacts;
-            }
+        contacts.$remove(contact).then(function (data) {
+          console.info('Deleted record:' + contact.firstName + ' ' + contact.lastName);
+        });
+      }
 
-            // update a contact
-            function updateContact(id, contact) {
-                contacts[id] = contact;
-                $localStorage.contacts = contacts;
-            }
-        }]);
+      // adds a new contact
+      function addContact(contact) {
+        contacts.$add(contact);
+      }
+
+      // update a contact
+      function updateContact(id, contact) {
+        contacts[id] = contact;
+        contacts.$save(id);
+      }
+    });
 }());
